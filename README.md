@@ -31,7 +31,7 @@ Ajoute une clé Gemini **côté serveur uniquement** dans `.env` :
 
 ```dotenv
 GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.1-flash-lite
 ```
 
 Sans clé, l’assistant indique qu’il n’est pas configuré et ne fournit pas de réponse juridique de secours. Son endpoint exige un jeton Firebase valide et applique un quota en mémoire par compte.

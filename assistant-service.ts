@@ -35,7 +35,7 @@ N’invente pas de règle, de délai, de pièce ou de décision. Distingue les g
     .map(item => `${item.role === 'assistant' ? 'Assistant' : language === 'en' ? 'Student' : 'Étudiant'}: ${item.content}`)
     .join('\n');
   const response = await ai.models.generateContent({
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
     contents,
     config: { systemInstruction, tools: [{ googleSearch: {} }] },
   });

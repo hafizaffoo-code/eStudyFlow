@@ -121,7 +121,7 @@ L'onglet « Trouver un emploi » lit la collection `jobs` de Firestore, vide au 
 
 ```env
 GEMINI_API_KEY=ta_cle_ici
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.1-flash-lite
 ```
 
 3. Redémarre `npm run dev` et teste l'onglet eStudy AI.
@@ -148,7 +148,7 @@ git push
    - **Plan** : Free
 5. Onglet **Environment** → ajoute :
    - `GEMINI_API_KEY` = ta clé
-   - `GEMINI_MODEL` = `gemini-2.5-flash`
+   - `GEMINI_MODEL` = `gemini-3.1-flash-lite`
    - `NODE_VERSION` = `22`
 6. Clique **Create Web Service**. Premier déploiement : ~5 min.
 7. Tu obtiens une URL `https://estudyflow-xxx.onrender.com`.

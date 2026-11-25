@@ -288,7 +288,7 @@ export async function getOfficialNewsForLanguage(language: 'fr' | 'en'): Promise
   try {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
       contents: JSON.stringify(news.items.map(({ id, title, summary, content }) => ({
         id, title, summary, content,
       }))),

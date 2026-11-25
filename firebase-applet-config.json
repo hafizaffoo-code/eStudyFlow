@@ -1,9 +1,9 @@
 {
-  "apiKey": "demo-api-key-not-for-production",
-  "authDomain": "demo-estudyflow.firebaseapp.com",
-  "projectId": "demo-estudyflow",
-  "storageBucket": "demo-estudyflow.appspot.com",
-  "messagingSenderId": "000000000000",
-  "appId": "1:000000000000:web:0000000000000000",
+  "apiKey": "AIzaSyC3-P0QZnDwHpVxbgeLhfZuEB2TRgXrzVI",
+  "authDomain": "estudyflow-bda76.firebaseapp.com",
+  "projectId": "estudyflow-bda76",
+  "storageBucket": "estudyflow-bda76.firebasestorage.app",
+  "messagingSenderId": "829380904505",
+  "appId": "1:829380904505:web:fe9c37489c9e934e31efe8",
   "firestoreDatabaseId": "(default)"
 }
