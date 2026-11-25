@@ -32,8 +32,8 @@ npm install
 1. Va sur https://console.firebase.google.com avec ton compte Google et clique **« Créer un projet »**.
 2. Nom suggéré : `estudyflow-prod`. Décoche Google Analytics. Clique **Créer**.
 3. Menu de gauche → **Build → Authentication → Get started**.
-4. Onglet **Sign-in method** : active **Anonymous** puis **Email/Password**, clique **Enregistrer**.
-5. Menu **Build → Firestore Database → Create database** → choisis **« Start in production mode »** et la région `europe-west1` (ou la plus proche).
+4. Onglet **Sign-in method** : active **Email/Password** (comptes récupérables) et, si tu veux proposer l'accès invité, **Anonymous**, puis clique **Enregistrer**.
+5. Menu **Build → Firestore Database → Create database** → choisis **« Start in production mode »** et la région `europe-west9 (Paris)`. La région Firestore ne peut pas être changée après création.
 6. Clique l'icône ⚙️ **Project settings** en haut à gauche → descends à **« Your apps »** → clique l'icône Web `</>`.
 7. Enregistre l'app (nom : `web`), puis **copie la config** affichée : `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`.
 
@@ -153,7 +153,11 @@ git push
 6. Clique **Create Web Service**. Premier déploiement : ~5 min.
 7. Tu obtiens une URL `https://estudyflow-xxx.onrender.com`.
 
-**Check** : ouvre l'URL → landing page, création de compte, profil, tâches, actualités, IA : tout marche en ligne.
+7. Dans Firebase Console → **Authentication → Settings → Authorized domains**, ajoute le domaine exact de Render, par exemple `estudyflow.onrender.com` (sans `https://` ni `/`).
+
+**Région** : choisis **Frankfurt (EU Central)** dans Render. Render ne propose pas actuellement de région à Paris; Francfort est son emplacement européen et reste proche de Firestore en `europe-west9 (Paris)`.
+
+**Check** : ouvre l'URL → vérifie que l'inscription demande une adresse e-mail réelle, que le lien « Mot de passe oublié ? » est visible à la connexion, puis teste le profil, les tâches, les actualités et l'IA après connexion.
 
 > ⚠️ Le plan gratuit Render endort le site après ~15 min sans visite : le premier chargement peut prendre ~1 min. C'est normal.
 
