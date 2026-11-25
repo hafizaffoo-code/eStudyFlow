@@ -5,9 +5,11 @@ import {
   EmailAuthProvider,
   onAuthStateChanged,
   reauthenticateWithCredential,
+  sendPasswordResetEmail,
   signInAnonymously,
   signInWithEmailAndPassword,
   signOut,
+  verifyBeforeUpdateEmail,
   User as FirebaseUser,
 } from 'firebase/auth';
 import {
@@ -42,9 +44,11 @@ interface AuthContextType {
   applications: JobApplication[];
   isLoading: boolean;
   dataError: string | null;
-  loginWithUsername: (username: string, pass: string) => Promise<void>;
-  registerWithUsername: (username: string, pass: string) => Promise<void>;
-  continueWithGoogleMvp: () => Promise<void>;
+  loginWithUsername: (identifier: string, pass: string) => Promise<void>;
+  registerWithUsername: (username: string, email: string, pass: string) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  updateRecoveryEmail: (email: string, password: string) => Promise<void>;
+  continueAsGuest: () => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (updated: Partial<StudentProfile>) => Promise<void>;
   toggleTaskStatus: (taskId: string) => Promise<void>;
@@ -65,6 +69,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const normalizeUsername = (username: string) => username.normalize('NFKC').trim();
+const isSyntheticAuthEmail = (email?: string | null) =>
+  Boolean(email?.endsWith('@accounts.estudyflow.invalid'));
 
 const authEmailForUsername = (username: string) => {
   const bytes = new TextEncoder().encode(normalizeUsername(username).toLocaleLowerCase('fr'));
@@ -80,18 +86,6 @@ const authEmailForUsername = (username: string) => {
 
 const legacyAuthEmailForUsername = (username: string) =>
   `${normalizeUsername(username).toLowerCase()}@accounts.estudyflow.invalid`;
-
-const canUseMvpGuestFallback = (error: unknown) =>
-  Boolean(error && typeof error === 'object' && 'code' in error && [
-    'auth/operation-not-allowed',
-    'auth/admin-restricted-operation',
-    'auth/invalid-credential',
-    'auth/invalid-login-credentials',
-    'auth/user-not-found',
-    'auth/wrong-password',
-    'auth/email-already-in-use',
-    'auth/weak-password',
-  ].includes(String(error.code)));
 
 const createDefaultProfile = (
   currentUser: FirebaseUser,
@@ -117,6 +111,9 @@ const createDefaultProfile = (
   annualWorkHoursLimit: 964,
   languagePreference: getStoredLanguage(),
   onboardingCompleted: true,
+  ...(!isSyntheticAuthEmail(currentUser.email) && currentUser.email
+    ? { email: currentUser.email }
+    : {}),
 });
 
 const isProfileReady = (profile: StudentProfile) =>
@@ -165,6 +162,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           let userProfile: StudentProfile;
           if (snapshot.exists()) {
             userProfile = snapshot.data() as StudentProfile;
+            if (!isSyntheticAuthEmail(currentUser.email)
+              && currentUser.email
+              && userProfile.email !== currentUser.email) {
+              userProfile = { ...userProfile, email: currentUser.email };
+              await setDoc(profileRef, { email: currentUser.email }, { merge: true });
+            }
           } else {
             const pendingUsername = pendingRegistrationUsernameRef.current;
             const username = pendingUsername
@@ -270,54 +273,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const loginWithUsername = async (username: string, pass: string) => {
-    const normalizedUsername = normalizeUsername(username);
-    try {
-      await signInWithEmailAndPassword(auth, authEmailForUsername(normalizedUsername), pass);
-    } catch (error) {
-      if (['auth/operation-not-allowed', 'auth/admin-restricted-operation'].includes(
-        String((error as { code?: string }).code),
-      )) {
-        await continueAsMvpGuest(normalizedUsername);
-        return;
-      }
-      const code = (error as { code?: string }).code;
-      if (!canUseMvpGuestFallback(error)) throw error;
-      if (!['auth/invalid-credential', 'auth/invalid-login-credentials', 'auth/user-not-found', 'auth/wrong-password'].includes(code || '')) {
-        await continueAsMvpGuest(normalizedUsername);
-        return;
-      }
+  const loginWithUsername = async (identifier: string, pass: string) => {
+    const normalizedIdentifier = normalizeUsername(identifier);
+    if (normalizedIdentifier.includes('@')) {
       try {
-        await signInWithEmailAndPassword(auth, legacyAuthEmailForUsername(normalizedUsername), pass);
-      } catch (legacyError) {
-        if (!canUseMvpGuestFallback(legacyError)) throw legacyError;
-        await continueAsMvpGuest(normalizedUsername);
-      }
-    }
-  };
-
-  const registerWithUsername = async (username: string, pass: string) => {
-    const normalizedUsername = normalizeUsername(username);
-    pendingRegistrationUsernameRef.current = normalizedUsername;
-    try {
-      let credential;
-      try {
-        credential = await createUserWithEmailAndPassword(auth, authEmailForUsername(normalizedUsername), pass);
+        await signInWithEmailAndPassword(auth, normalizedIdentifier.toLowerCase(), pass);
+        return;
       } catch (error) {
-        if (!canUseMvpGuestFallback(error)) throw error;
-        if ((error as { code?: string }).code === 'auth/email-already-in-use') {
-          try {
-            credential = await signInWithEmailAndPassword(auth, authEmailForUsername(normalizedUsername), pass);
-          } catch (signInError) {
-            if (!canUseMvpGuestFallback(signInError)) throw signInError;
-            await continueAsMvpGuest(normalizedUsername);
-            return;
-          }
-        } else {
-          await continueAsMvpGuest(normalizedUsername);
-          return;
+        const code = (error as { code?: string }).code;
+        if (!['auth/invalid-credential', 'auth/invalid-login-credentials', 'auth/user-not-found', 'auth/wrong-password'].includes(code || '')) {
+          throw error;
         }
       }
+    }
+
+    const emailCandidates = [
+      authEmailForUsername(normalizedIdentifier),
+      legacyAuthEmailForUsername(normalizedIdentifier),
+    ];
+    let lastError: unknown;
+    for (const email of emailCandidates) {
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        return;
+      } catch (error) {
+        lastError = error;
+        const code = (error as { code?: string }).code;
+        if (!['auth/invalid-credential', 'auth/invalid-login-credentials', 'auth/user-not-found', 'auth/wrong-password'].includes(code || '')) {
+          throw error;
+        }
+      }
+    }
+    throw lastError;
+  };
+
+  const registerWithUsername = async (username: string, email: string, pass: string) => {
+    const normalizedUsername = normalizeUsername(username);
+    const normalizedEmail = email.trim().toLowerCase();
+    pendingRegistrationUsernameRef.current = normalizedUsername;
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, pass);
       await setDoc(
         doc(db, 'users', credential.user.uid, 'profile', 'main'),
         createDefaultProfile(credential.user, normalizedUsername),
@@ -327,7 +322,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const continueWithGoogleMvp = async () => {
+  const requestPasswordReset = async (email: string) => {
+    await sendPasswordResetEmail(auth, email.trim().toLowerCase());
+  };
+
+  const updateRecoveryEmail = async (email: string, password: string) => {
+    if (!user || user.isAnonymous || !user.email) {
+      throw new Error('Une session de compte classique est requise.');
+    }
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+    await verifyBeforeUpdateEmail(user, email.trim().toLowerCase());
+  };
+
+  const continueAsGuest = async () => {
     await continueAsMvpGuest();
   };
 
@@ -545,7 +553,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       dataError,
       loginWithUsername,
       registerWithUsername,
-      continueWithGoogleMvp,
+      requestPasswordReset,
+      updateRecoveryEmail,
+      continueAsGuest,
       logout,
       updateProfile,
       toggleTaskStatus,
