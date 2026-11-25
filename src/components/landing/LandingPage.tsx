@@ -129,7 +129,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onRegister })
             <StepCard
               number="1"
               title="Crée ton compte"
-              description="Crée un compte avec un nom d’utilisateur et un mot de passe"
+              description="Crée un compte avec un nom d’utilisateur, une adresse e-mail et un mot de passe"
             />
             <StepCard
               number="2"
