@@ -23,7 +23,7 @@ interface ProfileModalProps {
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
-  const { user, profile, updateProfile, logout, exportAccountData, deleteAccount, submitFeedback } = useAuth();
+  const { user, profile, updateProfile, updateRecoveryEmail, logout, exportAccountData, deleteAccount, submitFeedback } = useAuth();
   const { language, setLanguage, languageError } = useLanguage();
   const photoInputRef = React.useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -40,6 +40,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryPassword, setRecoveryPassword] = useState('');
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
+  const [recoverySaving, setRecoverySaving] = useState(false);
 
   // Edit form state
   const [editName, setEditName] = useState(profile?.displayName || '');
@@ -200,6 +205,30 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
     }
   };
 
+  const handleRecoveryEmail = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setRecoverySaving(true);
+    setRecoveryError(null);
+    setRecoveryMessage(null);
+    try {
+      await updateRecoveryEmail(recoveryEmail, recoveryPassword);
+      setRecoveryPassword('');
+      setRecoveryMessage('Un lien de vérification a été envoyé. Après confirmation, connecte-toi avec cette adresse e-mail.');
+    } catch (error) {
+      console.error('Could not update account recovery email:', error);
+      const code = (error as { code?: string }).code;
+      setRecoveryError(code === 'auth/wrong-password' || code === 'auth/invalid-credential'
+        ? 'Mot de passe incorrect. Vérifie-le puis réessaie.'
+        : code === 'auth/invalid-email'
+          ? 'Saisis une adresse e-mail valide.'
+          : code === 'auth/email-already-in-use' || code === 'auth/credential-already-in-use'
+            ? 'Cette adresse e-mail est déjà associée à un compte.'
+            : 'Impossible d’envoyer le lien. Vérifie les informations puis réessaie.');
+    } finally {
+      setRecoverySaving(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3.5 sm:p-4 overflow-y-auto">
       <div className="w-full max-w-lg rounded-3xl bg-white p-5 sm:p-8 shadow-2xl relative my-auto max-h-[92dvh] overflow-y-auto ios-scroll animate-in zoom-in-95">
@@ -284,6 +313,48 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
           </div>
           {languageError && <p role="alert" className="mt-2 text-xs text-red-700">{languageError}</p>}
         </section>
+
+        {user && !user.isAnonymous && user.email?.endsWith('@accounts.estudyflow.invalid') && (
+          <form onSubmit={handleRecoveryEmail} className="mb-5 space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div>
+              <h3 className="text-xs font-bold text-[#17181C]">Ajouter une adresse de récupération</h3>
+              <p className="mt-1 text-[11px] leading-relaxed text-[#6B7280]">
+                Ce compte utilise un ancien identifiant sans adresse e-mail récupérable. Confirme ton mot de passe et ajoute une adresse valide pour pouvoir réinitialiser ton mot de passe.
+              </p>
+            </div>
+            <label className="block text-xs font-semibold text-[#17181C]">
+              Adresse e-mail
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={recoveryEmail}
+                onChange={event => setRecoveryEmail(event.target.value)}
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:border-[#0045F9] focus:outline-hidden"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-[#17181C]">
+              Mot de passe actuel
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={recoveryPassword}
+                onChange={event => setRecoveryPassword(event.target.value)}
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:border-[#0045F9] focus:outline-hidden"
+              />
+            </label>
+            {recoveryError && <p role="alert" className="text-xs text-red-700">{recoveryError}</p>}
+            {recoveryMessage && <p role="status" className="text-xs text-green-800">{recoveryMessage}</p>}
+            <button
+              type="submit"
+              disabled={recoverySaving}
+              className="w-full rounded-xl bg-[#0045F9] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#0036C8] disabled:opacity-50"
+            >
+              {recoverySaving ? 'Envoi du lien...' : 'Vérifier cette adresse'}
+            </button>
+          </form>
+        )}
 
         {/* Info Grid */}
         {!isEditing ? (
