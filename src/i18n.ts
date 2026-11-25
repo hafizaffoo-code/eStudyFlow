@@ -12,14 +12,6 @@ const polishedCopy: Record<string, Record<Language, string>> = {
     fr: 'Suis tes démarches et retrouve ton profil dans ton espace.',
     en: 'Track your tasks and find your profile in one place.',
   },
-  'Mode MVP : si Firebase refuse la connexion par mot de passe, tu accèdes quand même en invité. Ton nom est conservé, mais le mot de passe n’est alors ni vérifié ni enregistré ; cette session ne pourra pas être récupérée après déconnexion.': {
-    fr: 'Mode invité : si la connexion classique échoue, tu peux continuer sans compte récupérable. Dans ce cas, ton mot de passe n’est ni vérifié ni conservé, et tu perdras l’accès à cette session après déconnexion.',
-    en: 'Guest mode: if standard sign-in fails, you can continue without a recoverable account. In guest mode, your password is neither checked nor stored, and you will lose access to this session after signing out.',
-  },
-  'Accès invité MVP, sans connexion Google. Les données restent liées à ce navigateur et ne sont pas récupérables après déconnexion.': {
-    fr: 'Cette session invité est liée à cet appareil. Tu ne pourras pas la récupérer après déconnexion.',
-    en: 'This guest session is tied to this device. You cannot recover it after signing out.',
-  },
   'en France, simplifié': {
     fr: 'en France, simplifié',
     en: 'in France, made simpler',
@@ -307,6 +299,106 @@ const polishedCopy: Record<string, Record<Language, string>> = {
   'Nom d’utilisateur ou mot de passe incorrect.': {
     fr: 'Identifiants incorrects. Vérifie ton nom d’utilisateur et ton mot de passe.',
     en: 'Incorrect sign-in details. Check your username and password.',
+  },
+  'Adresse e-mail ou identifiant historique, ou mot de passe incorrect.': {
+    fr: 'Identifiants incorrects. Vérifie ton adresse e-mail ou ton ancien nom d’utilisateur, puis ton mot de passe.',
+    en: 'Incorrect sign-in details. Check your email address or legacy username and password.',
+  },
+  'Adresse e-mail ou identifiant historique': {
+    fr: 'Adresse e-mail ou identifiant historique',
+    en: 'Email address or legacy username',
+  },
+  'Réinitialiser mon mot de passe': {
+    fr: 'Réinitialiser mon mot de passe',
+    en: 'Reset your password',
+  },
+  'Mot de passe oublié ?': {
+    fr: 'Mot de passe oublié ?',
+    en: 'Forgot password?',
+  },
+  'Adresse e-mail': {
+    fr: 'Adresse e-mail',
+    en: 'Email address',
+  },
+  'Saisis l’adresse e-mail associée à ton compte.': {
+    fr: 'Saisis l’adresse e-mail associée à ton compte.',
+    en: 'Enter the email address linked to your account.',
+  },
+  'Saisis une adresse e-mail valide.': {
+    fr: 'Saisis une adresse e-mail valide.',
+    en: 'Enter a valid email address.',
+  },
+  'Cette adresse e-mail est déjà associée à un compte.': {
+    fr: 'Cette adresse e-mail est déjà associée à un compte.',
+    en: 'This email address is already associated with an account.',
+  },
+  'La connexion par e-mail/mot de passe n’est pas activée dans Firebase.': {
+    fr: 'La connexion par e-mail/mot de passe n’est pas activée dans Firebase.',
+    en: 'Email and password sign-in is not enabled in Firebase.',
+  },
+  'L’accès invité n’est pas activé dans Firebase Authentication.': {
+    fr: 'L’accès invité n’est pas activé dans Firebase Authentication.',
+    en: 'Guest access is not enabled in Firebase Authentication.',
+  },
+  'Impossible de joindre le service de connexion. Vérifie ta connexion puis réessaie.': {
+    fr: 'Impossible de joindre le service de connexion. Vérifie ta connexion puis réessaie.',
+    en: 'Could not reach the sign-in service. Check your connection and try again.',
+  },
+  'Trop de tentatives. Attends quelques minutes avant de réessayer.': {
+    fr: 'Trop de tentatives. Attends quelques minutes avant de réessayer.',
+    en: 'Too many attempts. Wait a few minutes before trying again.',
+  },
+  'Impossible d’envoyer le lien pour le moment. Réessaie plus tard.': {
+    fr: 'Impossible d’envoyer le lien pour le moment. Réessaie plus tard.',
+    en: 'Could not send the link right now. Please try again later.',
+  },
+  'Si un compte est associé à cette adresse, un lien de réinitialisation vient d’être envoyé.': {
+    fr: 'Si un compte est associé à cette adresse, un lien de réinitialisation vient d’être envoyé.',
+    en: 'If an account is associated with this address, a password reset link has been sent.',
+  },
+  'Ton adresse e-mail sert à sécuriser ton compte et à réinitialiser ton mot de passe. Les anciens comptes peuvent toujours se connecter avec leur nom d’utilisateur.': {
+    fr: 'Ton adresse e-mail sert à sécuriser ton compte et à réinitialiser ton mot de passe. Les anciens comptes peuvent toujours se connecter avec leur nom d’utilisateur.',
+    en: 'Your email address helps secure your account and reset your password. Existing accounts can still sign in with their username.',
+  },
+  'Envoyer le lien de réinitialisation': {
+    fr: 'Envoyer le lien de réinitialisation',
+    en: 'Send password reset link',
+  },
+  'Envoi du lien...': {
+    fr: 'Envoi du lien…',
+    en: 'Sending link…',
+  },
+  'Retour à la connexion': {
+    fr: 'Retour à la connexion',
+    en: 'Back to sign in',
+  },
+  'Ajouter une adresse de récupération': {
+    fr: 'Ajouter une adresse de récupération',
+    en: 'Add a recovery email address',
+  },
+  'Ce compte utilise un ancien identifiant sans adresse e-mail récupérable. Confirme ton mot de passe et ajoute une adresse valide pour pouvoir réinitialiser ton mot de passe.': {
+    fr: 'Ce compte utilise un ancien identifiant sans adresse e-mail récupérable. Confirme ton mot de passe et ajoute une adresse valide pour pouvoir réinitialiser ton mot de passe.',
+    en: 'This account uses an old sign-in ID without a recovery email. Confirm your password and add a valid address to reset it in the future.',
+  },
+  'Mot de passe actuel': {
+    fr: 'Mot de passe actuel',
+    en: 'Current password',
+  },
+  'Un lien de vérification a été envoyé. Après confirmation, connecte-toi avec cette adresse e-mail.': {
+    fr: 'Un lien de vérification a été envoyé. Après confirmation, connecte-toi avec cette adresse e-mail.',
+    en: 'A verification link has been sent. After confirming, sign in with this email address.',
+  },
+  'Mot de passe incorrect. Vérifie-le puis réessaie.': {
+    fr: 'Mot de passe incorrect. Vérifie-le puis réessaie.',
+    en: 'Incorrect password. Check it and try again.',
+  },
+  'Impossible d’envoyer le lien. Vérifie les informations puis réessaie.': {
+    fr: 'Impossible d’envoyer le lien. Vérifie les informations puis réessaie.',
+    en: 'Could not send the link. Check the details and try again.',
+  },
+  'Vérifier cette adresse': {
+    fr: 'Vérifier cette adresse',
+    en: 'Verify this address',
   },
   'Choisis un mot de passe plus robuste.': {
     fr: 'Ce mot de passe n’est pas accepté. Choisis-en un autre.',
@@ -696,8 +788,6 @@ const english: Record<string, string> = {
   'Me connecter': 'Sign in',
   'Déjà un compte ? Me connecter': 'Already have an account? Sign in',
   'Créer un compte': 'Create an account',
-  'Mode MVP : si Firebase refuse la connexion par mot de passe, tu accèdes quand même en invité. Ton nom est conservé, mais le mot de passe n’est alors ni vérifié ni enregistré ; cette session ne pourra pas être récupérée après déconnexion.': 'MVP mode: if Firebase rejects password sign-in, you can still continue as a guest. Your username is saved, but your password is not checked or stored; this session cannot be recovered after signing out.',
-  'Accès invité MVP, sans connexion Google. Les données restent liées à ce navigateur et ne sont pas récupérables après déconnexion.': 'MVP guest access, without Google sign-in. Your data stays in this browser and cannot be recovered after signing out.',
   'Ton parcours étudiant en France, simplifié': 'Your student journey in France, made simple',
   'en France, simplifié': 'in France, made simple',
   'Ton parcours étudiant': 'Your student journey',
@@ -719,7 +809,7 @@ const english: Record<string, string> = {
   'eStudy AI répond à tes questions sur les démarches en France': 'eStudy AI answers your questions about procedures in France',
   'Comment ça marche ?': 'How does it work?',
   'Crée ton compte': 'Create your account',
-  'Crée un compte avec un nom d’utilisateur et un mot de passe': 'Create an account with a username and password',
+  'Crée un compte avec un nom d’utilisateur, une adresse e-mail et un mot de passe': 'Create an account with a username, email address, and password',
   'Renseigne ta situation': 'Enter your situation',
   'Saisis tes informations réelles pour obtenir un parcours adapté': 'Enter your details to get a personalized journey',
   'Suis tes démarches': 'Track your tasks',
